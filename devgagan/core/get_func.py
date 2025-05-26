@@ -20,9 +20,8 @@ import os
 import re
 
 
-import re
-
-def apply_offset_to_caption_links(caption: str, offset: int) -> str:
+def apply_offset_to_caption_links_only(caption: str, offset: int) -> str:
+    import re
     if not caption:
         return caption
 
@@ -191,7 +190,7 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 thumb=thumb_path
             )
 
-        os.remove(file)
+    os.remove(file)
     except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
@@ -297,6 +296,8 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
         )
         
         caption = await get_final_caption(msg, sender)
+        offset = load_user_data(sender, "caption_offset", 0)
+        caption = apply_offset_to_caption_links_only(caption, offset)
 
         # Rename file
         file = await rename_file(file, sender)
@@ -404,12 +405,6 @@ async def get_final_caption(msg, sender):
         final_caption = final_caption.replace(word, replace_word)
         
     return final_caption if final_caption else None
-    try:
-        offset = load_user_data(sender, "caption_offset", 0)
-        final_caption = apply_offset_to_caption_links(final_caption, offset)
-    except Exception as e:
-        print(f"[Offset Error] {e}")
-
 
 
 async def download_user_stories(userbot, chat_id, msg_id, edit, sender):
