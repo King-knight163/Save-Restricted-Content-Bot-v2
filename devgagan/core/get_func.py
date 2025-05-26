@@ -63,7 +63,14 @@ async def fetch_upload_method(user_id):
     return user_data.get("upload_method", "Pyrogram") if user_data else "Pyrogram"
 
 async def format_caption_to_html(caption: str) -> str:
-    caption = re.sub(r"^> (.*)", r"<blockquote>\1</blockquote>", caption, flags=re.MULTILINE)
+        # Fix caption links in forwarded messages
+        if message.caption:
+            import re
+            original_caption = message.caption
+            # Example: Replace t.me/oldchannel with t.me/newchannel (edit this as needed)
+            caption = re.sub(r"(https?://t\.me/\w+)", "https://t.me/yournewchannel", original_caption)
+        else:
+            caption = None
     caption = re.sub(r"```(.*?)```", r"<pre>\1</pre>", caption, flags=re.DOTALL)
     caption = re.sub(r"`(.*?)`", r"<code>\1</code>", caption)
     caption = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", caption)
