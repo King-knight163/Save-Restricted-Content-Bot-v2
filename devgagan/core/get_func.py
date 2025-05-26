@@ -361,7 +361,6 @@ def get_message_file_size(msg):
 
 
 async def get_final_caption(msg, sender):
-    # Handle caption based on the upload method
     if msg.caption:
         original_caption = msg.caption
     else:
@@ -376,7 +375,6 @@ async def get_final_caption(msg, sender):
     for word, replace_word in replacements.items():
         final_caption = final_caption.replace(word, replace_word)
 
-    # ✅ Apply offset only to Telegram caption links
     return apply_offset_to_caption_links(final_caption, get_user_offset(sender)) if final_caption else None
 
 
