@@ -18,6 +18,22 @@ import time
 import gc
 import os
 import re
+
+
+import re
+
+def apply_offset_to_caption_links(caption: str, offset: int) -> str:
+    if not caption:
+        return caption
+
+    def replace(match):
+        base = match.group(1)
+        number = int(match.group(2))
+        return f"{base}{number + offset}"
+
+    pattern = re.compile(r'(https?://t\.me/(?:c/\d+|[\w_]+)/)(\d+)')
+    return pattern.sub(replace, caption)
+
 from typing import Callable
 from devgagan import app
 import aiofiles
@@ -62,23 +78,8 @@ async def fetch_upload_method(user_id):
     user_data = collection.find_one({"user_id": user_id})
     return user_data.get("upload_method", "Pyrogram") if user_data else "Pyrogram"
 
-
-async def format_caption_to_html(caption: str, sender: int) -> str:
-    import re
-
-    # Get the offset from user settings
-    offset = load_user_data(sender, "addnumber", 0) - load_user_data(sender, "lessnumber", 0)
-
-    # Match any telegram link ending in a number, and apply the offset
-    def update_link(match):
-        base_url = match.group(1)
-        number = int(match.group(2))
-        return f"{base_url}{number + offset}"
-
-    # General link pattern: works for t.me/abc/1234, t.me/c/123/1234, etc.
-    caption = re.sub(r"(https://t\.me/[^\s/]+/)(\d+)", update_link, caption)
-
-    # Format to HTML
+async def format_caption_to_html(caption: str) -> str:
+    caption = re.sub(r"^> (.*)", r"<blockquote>\1</blockquote>", caption, flags=re.MULTILINE)
     caption = re.sub(r"```(.*?)```", r"<pre>\1</pre>", caption, flags=re.DOTALL)
     caption = re.sub(r"`(.*?)`", r"<code>\1</code>", caption)
     caption = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", caption)
@@ -88,8 +89,7 @@ async def format_caption_to_html(caption: str, sender: int) -> str:
     caption = re.sub(r"~~(.*?)~~", r"<s>\1</s>", caption)
     caption = re.sub(r"\|\|(.*?)\|\|", r"<details>\1</details>", caption)
     caption = re.sub(r"\[(.*?)\]\((.*?)\)", r'<a href="\2">\1</a>', caption)
-
-    return caption.strip()
+    return caption.strip() if caption else None
     
 
 
@@ -182,7 +182,6 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 parse_mode='html',
                 thumb=thumb_path
             )
-        try:
             await gf.send_file(
                 LOG_GROUP,
                 uploaded,
@@ -191,15 +190,8 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 parse_mode='html',
                 thumb=thumb_path
             )
-            os.remove(file)
-        except Exception as e:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-            print(f"Error during media upload: {e}")
-        finally:
-            if thumb_path and os.path.exists(thumb_path):
-                if os.path.basename(thumb_path) != f"{sender}.jpg":
-                    os.remove(thumb_path)
-            gc.collect()
+
+    os.remove(file)
     except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
@@ -412,6 +404,12 @@ async def get_final_caption(msg, sender):
         final_caption = final_caption.replace(word, replace_word)
         
     return final_caption if final_caption else None
+    try:
+        offset = load_user_data(sender, "caption_offset", 0)
+        final_caption = apply_offset_to_caption_links(final_caption, offset)
+    except Exception as e:
+        print(f"[Offset Error] {e}")
+
 
 
 async def download_user_stories(userbot, chat_id, msg_id, edit, sender):
@@ -642,10 +640,7 @@ async def send_settings_message(chat_id, user_id):
         [Button.inline("Session Login", b'addsession'), Button.inline("Logout", b'logout')],
         [Button.inline("Set Thumbnail", b'setthumb'), Button.inline("Remove Thumbnail", b'remthumb')],
         [Button.inline("PDF Wtmrk", b'pdfwt'), Button.inline("Video Wtmrk", b'watermark')],
-        [Button.inline("Upload Method", b'uploadmethod')],
-
-        [Button.inline("➕ Add Number", b'addnumber'), Button.inline("➖ Less Number", b'lessnumber')],
-  # Include the dynamic Fast DL button
+        [Button.inline("Upload Method", b'uploadmethod')],  # Include the dynamic Fast DL button
         [Button.url("Report Errors", "https://t.me/team_spy_pro")]
     ]
 
@@ -699,15 +694,6 @@ async def callback_query_handler(event):
         pending_photos[user_id] = True
         await event.respond('Please send the photo you want to set as the thumbnail.')
     
-    
-    elif event.data == b'addnumber':
-        await event.respond("कितना **add** करना है? (सिर्फ संख्या भेजें)")
-        sessions[user_id] = 'addnumber'
-
-    elif event.data == b'lessnumber':
-        await event.respond("कितना **less** करना है? (सिर्फ संख्या भेजें)")
-        sessions[user_id] = 'lessnumber'
-
     elif event.data == b'pdfwt':
         await event.respond("This feature is not available yet in public repo...")
         return
@@ -852,24 +838,7 @@ async def handle_user_input(event):
             await event.respond(f"Words added to delete list: {', '.join(words_to_delete)}")
                
             
-        
-        elif session_type == 'addnumber':
-            try:
-                n = int(event.text.strip())
-                await set_addnumber_command(user_id, n)
-                await event.respond(f"✅ Add-number सेट हो गया: {n}")
-            except ValueError:
-                await event.respond("⚠️ कृपया सही संख्या भेजें।")
-
-        elif session_type == 'lessnumber':
-            try:
-                n = int(event.text.strip())
-                await set_lessnumber_command(user_id, n)
-                await event.respond(f"✅ Less-number सेट हो गया: {n}")
-            except ValueError:
-                await event.respond("⚠️ कृपया सही संख्या भेजें।")
-
-            del sessions[user_id]
+        del sessions[user_id]
     
 # Command to store channel IDs
 @gf.on(events.NewMessage(incoming=True, pattern='/lock'))
@@ -1197,3 +1166,21 @@ async def split_and_upload_file(app, sender, target_chat_id, file_path, caption,
 
     await start.delete()
     os.remove(file_path)
+
+@gf.on(events.NewMessage(incoming=True, pattern='/addnumber'))
+async def add_offset(event):
+    try:
+        value = int(event.text.split(' ')[1])
+        save_user_data(event.sender_id, "caption_offset", value)
+        await event.respond(f"✅ Offset set to +{value}")
+    except:
+        await event.respond("❌ Usage: /addnumber 2")
+
+@gf.on(events.NewMessage(incoming=True, pattern='/lessnumber'))
+async def less_offset(event):
+    try:
+        value = int(event.text.split(' ')[1])
+        save_user_data(event.sender_id, "caption_offset", -value)
+        await event.respond(f"✅ Offset set to -{abs(value)}")
+    except:
+        await event.respond("❌ Usage: /lessnumber 1")
