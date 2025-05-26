@@ -361,15 +361,15 @@ def get_message_file_size(msg):
 
 
 async def get_final_caption(msg, sender):
-    if msg.caption:
-        original_caption = msg.caption
-    else:
-        original_caption = ""
-
+    original_caption = msg.caption if msg.caption else ""
     custom_caption = get_user_caption_preference(sender)
-    final_caption = f"{original_caption}
 
-{custom_caption}" if custom_caption else original_caption
+    if custom_caption:
+        final_caption = original_caption + "
+
+" + custom_caption
+    else:
+        final_caption = original_caption
 
     replacements = load_replacement_words(sender)
     for word, replace_word in replacements.items():
