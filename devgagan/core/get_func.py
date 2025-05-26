@@ -63,8 +63,7 @@ async def fetch_upload_method(user_id):
     return user_data.get("upload_method", "Pyrogram") if user_data else "Pyrogram"
 
 
-async 
-def format_caption_to_html(caption: str, sender: int) -> str:
+async def def format_caption_to_html(caption: str, sender: int) -> str:
     if caption:
         import re
         offset = load_user_data(sender, "addnumber", 0) - load_user_data(sender, "lessnumber", 0)
