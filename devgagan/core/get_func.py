@@ -166,24 +166,24 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 parse_mode='html',
                 thumb=thumb_path
             )
-    try:
-        await gf.send_file(
-            LOG_GROUP,
-            uploaded,
-            caption=caption,
-            attributes=attributes,
-            parse_mode='html',
-            thumb=thumb_path
-        )
-        os.remove(file)
-    except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
+        try:
+            await gf.send_file(
+                LOG_GROUP,
+                uploaded,
+                caption=caption,
+                attributes=attributes,
+                parse_mode='html',
+                thumb=thumb_path
+            )
+            os.remove(file)
+        except Exception as e:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+            print(f"Error during media upload: {e}")
+        finally:
+            if thumb_path and os.path.exists(thumb_path):
+                if os.path.basename(thumb_path) != f"{sender}.jpg":
+                    os.remove(thumb_path)
+            gc.collect()
     except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
