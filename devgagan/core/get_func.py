@@ -189,9 +189,11 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 parse_mode='html',
                 thumb=thumb_path
             )
-
-    os.remove(file)
-    except Exception as e:
+        try:
+            os.remove(file)
+        except Exception:
+            pass
+        except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
 
@@ -349,7 +351,10 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
     finally:
         # Clean up
         if file and os.path.exists(file):
-            os.remove(file)
+            try:
+                os.remove(file)
+            except Exception:
+                pass
         if edit:
             await edit.delete(2)
         
@@ -517,7 +522,10 @@ async def copy_message_with_chat_id(app, userbot, sender, chat_id, message_id, e
 
     finally:
         if file and os.path.exists(file):
-            os.remove(file)
+            try:
+                os.remove(file)
+            except Exception:
+                pass
 
 
 async def send_media_message(app, target_chat_id, msg, caption, topic_id):
