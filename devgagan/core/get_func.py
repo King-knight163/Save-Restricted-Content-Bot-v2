@@ -63,33 +63,30 @@ async def fetch_upload_method(user_id):
     return user_data.get("upload_method", "Pyrogram") if user_data else "Pyrogram"
 
 
-async def def format_caption_to_html(caption: str, sender: int) -> str:
 async def format_caption_to_html(caption: str, sender: int) -> str:
-        import re
-        offset = load_user_data(sender, "addnumber", 0) - load_user_data(sender, "lessnumber", 0)
+    import re
+    offset = load_user_data(sender, "addnumber", 0) - load_user_data(sender, "lessnumber", 0)
 
-        # ✅ Adjust only caption links
-        def update_link(match):
-            base = match.group(1)
-            number = int(match.group(2))
-            return f"{base}{number + offset}"
+    # ✅ Adjust only caption links
+    def update_link(match):
+        base = match.group(1)
+        number = int(match.group(2))
+        return f"{base}{number + offset}"
 
-        caption = re.sub(r"(https://t\.me/c/\d+/)(\d+)", update_link, caption)
+    caption = re.sub(r"(https://t\.me/c/\d+/)(\d+)", update_link, caption)
 
-        # Formatting styles
-        caption = re.sub(r"```(.*?)```", r"<pre>\1</pre>", caption, flags=re.DOTALL)
-        caption = re.sub(r"`(.*?)`", r"<code>\1</code>", caption)
-        caption = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", caption)
-        caption = re.sub(r"\*(.*?)\*", r"<b>\1</b>", caption)
-        caption = re.sub(r"__(.*?)__", r"<i>\1</i>", caption)
-        caption = re.sub(r"_(.*?)_", r"<i>\1</i>", caption)
-        caption = re.sub(r"~~(.*?)~~", r"<s>\1</s>", caption)
-        caption = re.sub(r"\|\|(.*?)\|\|", r"<details>\1</details>", caption)
-        caption = re.sub(r"\[(.*?)\]\((.*?)\)", r'<a href="\2">\1</a>', caption)
+    # Formatting styles
+    caption = re.sub(r"```(.*?)```", r"<pre>\1</pre>", caption, flags=re.DOTALL)
+    caption = re.sub(r"`(.*?)`", r"<code>\1</code>", caption)
+    caption = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", caption)
+    caption = re.sub(r"\*(.*?)\*", r"<b>\1</b>", caption)
+    caption = re.sub(r"__(.*?)__", r"<i>\1</i>", caption)
+    caption = re.sub(r"_(.*?)_", r"<i>\1</i>", caption)
+    caption = re.sub(r"~~(.*?)~~", r"<s>\1</s>", caption)
+    caption = re.sub(r"\|\|(.*?)\|\|", r"<details>\1</details>", caption)
+    caption = re.sub(r"\[(.*?)\]\((.*?)\)", r'<a href="\2">\1</a>', caption)
 
-        return caption.strip()
-    return None
-    return None
+    return caption.strip()
     
 
 
