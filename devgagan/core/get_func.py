@@ -194,6 +194,10 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
         except Exception:
             pass
         except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
 
@@ -346,6 +350,10 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
     except (ChannelBanned, ChannelInvalid, ChannelPrivate, ChatIdInvalid, ChatInvalid):
         await app.edit_message_text(sender, edit_id, "Have you joined the channel?")
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         # await app.edit_message_text(sender, edit_id, f"Failed to save: `{msg_link}`\n\nError: {str(e)}")
         print(f"Error: {e}")
     finally:
@@ -471,6 +479,10 @@ async def copy_message_with_chat_id(app, userbot, sender, chat_id, message_id, e
             try:
                 await userbot.join_chat(chat_id)
             except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
                 print(e)
                 pass
             chat_id = (await userbot.get_chat(f"@{chat_id}")).id
@@ -514,6 +526,10 @@ async def copy_message_with_chat_id(app, userbot, sender, chat_id, message_id, e
                 await edit.edit("Unsupported media type.")
 
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         print(f"Error : {e}")
         pass
         #error_message = f"Error occurred while processing message: {str(e)}"
@@ -537,6 +553,10 @@ async def send_media_message(app, target_chat_id, msg, caption, topic_id):
         if msg.photo:
             return await app.send_photo(target_chat_id, msg.photo.file_id, caption=caption, reply_to_message_id=topic_id)
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         print(f"Error while sending media: {e}")
     
     # Fallback to copy_message in case of any exceptions
@@ -567,6 +587,10 @@ def load_user_data(user_id, key, default_value=None):
         user_data = collection.find_one({"_id": user_id})
         return user_data.get(key, default_value) if user_data else default_value
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         print(f"Error loading {key}: {e}")
         return default_value
 
@@ -577,6 +601,10 @@ def load_saved_channel_ids():
         for channel_doc in collection.find({"channel_id": {"$exists": True}}):
             saved_channel_ids.add(channel_doc["channel_id"])
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         print(f"Error loading saved channel IDs: {e}")
     return saved_channel_ids
 
@@ -588,6 +616,10 @@ def save_user_data(user_id, key, value):
             upsert=True
         )
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         print(f"Error saving {key}: {e}")
 
 
@@ -754,6 +786,10 @@ async def callback_query_handler(event):
                 os.remove(thumbnail_path)
             await event.respond("✅ Reset successfully, to logout click /logout")
         except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
             await event.respond(f"Error clearing delete list: {e}")
     
     elif event.data == b'remthumb':
@@ -861,6 +897,10 @@ async def lock_command_handler(event):
         collection.insert_one({"channel_id": channel_id})
         await event.respond(f"Channel ID {channel_id} locked successfully.")
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         await event.respond(f"Error occurred while locking channel ID: {str(e)}")
 
 
@@ -943,6 +983,10 @@ async def handle_large_file(file, sender, edit, caption):
             )
             
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         print(f"Error while sending file: {e}")
 
     finally:
@@ -998,6 +1042,10 @@ async def is_file_size_exceeding(file_path, size_limit):
         print(f"File not found: {file_path}")
         return False
     except Exception as e:
+        try:
+            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        except:
+            pass
         print(f"Error while checking file size: {e}")
         return False
 
