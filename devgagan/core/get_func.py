@@ -65,15 +65,23 @@ async def fetch_upload_method(user_id):
 
 async def format_caption_to_html(caption: str, sender: int) -> str:
     import re
-    offset = load_user_data(sender, "addnumber", 0) - load_user_data(sender, "lessnumber", 0)
 
-    def update_link(match):
-        base = match.group(1)
-        number = int(match.group(2))
-        return f"{base}{number + offset}"
+    # Load user's offset preferences
+    offset_add = load_user_data(sender, "addnumber", 0)
+    offset_less = load_user_data(sender, "lessnumber", 0)
+    offset = offset_add - offset_less
 
-    caption = re.sub(r"(https://t\.me/c/\d+/)(\d+)", update_link, caption)
+    # Update only Telegram caption links (not the original fetch link)
+    def update_telegram_link(match):
+        base_url = match.group(1)
+        message_id = int(match.group(2))
+        updated_id = message_id + offset
+        return f"{base_url}{updated_id}"
 
+    # Apply offset to t.me/c/... links only inside captions
+    caption = re.sub(r"(https://t\.me/c/\d+/)(\d+)", update_telegram_link, caption)
+
+    # Format to HTML
     caption = re.sub(r"```(.*?)```", r"<pre>\1</pre>", caption, flags=re.DOTALL)
     caption = re.sub(r"`(.*?)`", r"<code>\1</code>", caption)
     caption = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", caption)
