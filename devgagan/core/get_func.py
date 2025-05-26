@@ -66,19 +66,19 @@ async def fetch_upload_method(user_id):
 async def format_caption_to_html(caption: str, sender: int) -> str:
     import re
 
-    # Calculate net offset from user settings
+    # Get the offset from user settings
     offset = load_user_data(sender, "addnumber", 0) - load_user_data(sender, "lessnumber", 0)
 
-    # Update all Telegram links' last numeric ID (not just /c/ links)
+    # Match any telegram link ending in a number, and apply the offset
     def update_link(match):
-        base = match.group(1)
+        base_url = match.group(1)
         number = int(match.group(2))
-        return f"{base}{number + offset}"
+        return f"{base_url}{number + offset}"
 
-    # Match any Telegram-style link with a numeric message ID
+    # General link pattern: works for t.me/abc/1234, t.me/c/123/1234, etc.
     caption = re.sub(r"(https://t\.me/[^\s/]+/)(\d+)", update_link, caption)
 
-    # Formatting enhancements
+    # Format to HTML
     caption = re.sub(r"```(.*?)```", r"<pre>\1</pre>", caption, flags=re.DOTALL)
     caption = re.sub(r"`(.*?)`", r"<code>\1</code>", caption)
     caption = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", caption)
