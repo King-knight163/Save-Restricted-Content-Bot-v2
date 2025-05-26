@@ -175,7 +175,16 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 thumb=thumb_path
             )
 
-    os.remove(file)
+    except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
+            os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
     except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
@@ -288,14 +297,32 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
             result = await app.send_audio(target_chat_id, file, caption=caption, reply_to_message_id=topic_id)
             await result.copy(LOG_GROUP)
             await edit.delete(2)
+            except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
             os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
             return
         
         if msg.voice:
             result = await app.send_voice(target_chat_id, file, reply_to_message_id=topic_id)
             await result.copy(LOG_GROUP)
             await edit.delete(2)
+            except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
             os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
             return
 
 
@@ -303,14 +330,32 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
             result = await app.send_video_note(target_chat_id, file, reply_to_message_id=topic_id)
             await result.copy(LOG_GROUP)
             await edit.delete(2)
+            except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
             os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
             return
 
         if msg.photo:
             result = await app.send_photo(target_chat_id, file, caption=caption, reply_to_message_id=topic_id)
             await result.copy(LOG_GROUP)
             await edit.delete(2)
+            except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
             os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
             return
 
         # Upload media
@@ -332,7 +377,16 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
     finally:
         # Clean up
         if file and os.path.exists(file):
+            except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
             os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
         if edit:
             await edit.delete(2)
         
@@ -500,7 +554,16 @@ async def copy_message_with_chat_id(app, userbot, sender, chat_id, message_id, e
 
     finally:
         if file and os.path.exists(file):
+            except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
             os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
 
 
 async def send_media_message(app, target_chat_id, msg, caption, topic_id):
@@ -883,7 +946,16 @@ async def lock_command_handler(event):
 async def handle_large_file(file, sender, edit, caption):
     if pro is None:
         await edit.edit('**__ ❌ 4GB trigger not found__**')
-        os.remove(file)
+        except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
+            os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
         gc.collect()
         return
     
@@ -963,7 +1035,16 @@ async def handle_large_file(file, sender, edit, caption):
 
     finally:
         await edit.delete()
-        os.remove(file)
+        except Exception as e:
+        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
+        print(f"Error during media upload: {e}")
+    finally:
+        if os.path.exists(file):
+            os.remove(file)
+        if thumb_path and os.path.exists(thumb_path):
+            if os.path.basename(thumb_path) != f"{sender}.jpg":
+                os.remove(thumb_path)
+        gc.collect()
         gc.collect()
         return
 
