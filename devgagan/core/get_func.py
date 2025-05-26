@@ -618,7 +618,10 @@ async def send_settings_message(chat_id, user_id):
         [Button.inline("Session Login", b'addsession'), Button.inline("Logout", b'logout')],
         [Button.inline("Set Thumbnail", b'setthumb'), Button.inline("Remove Thumbnail", b'remthumb')],
         [Button.inline("PDF Wtmrk", b'pdfwt'), Button.inline("Video Wtmrk", b'watermark')],
-        [Button.inline("Upload Method", b'uploadmethod')],  # Include the dynamic Fast DL button
+        [Button.inline("Upload Method", b'uploadmethod')],
+
+        [Button.inline("➕ Add Number", b'addnumber'), Button.inline("➖ Less Number", b'lessnumber')],
+  # Include the dynamic Fast DL button
         [Button.url("Report Errors", "https://t.me/team_spy_pro")]
     ]
 
@@ -672,6 +675,15 @@ async def callback_query_handler(event):
         pending_photos[user_id] = True
         await event.respond('Please send the photo you want to set as the thumbnail.')
     
+    
+    elif event.data == b'addnumber':
+        await event.respond("कितना **add** करना है? (सिर्फ संख्या भेजें)")
+        sessions[user_id] = 'addnumber'
+
+    elif event.data == b'lessnumber':
+        await event.respond("कितना **less** करना है? (सिर्फ संख्या भेजें)")
+        sessions[user_id] = 'lessnumber'
+
     elif event.data == b'pdfwt':
         await event.respond("This feature is not available yet in public repo...")
         return
@@ -816,7 +828,24 @@ async def handle_user_input(event):
             await event.respond(f"Words added to delete list: {', '.join(words_to_delete)}")
                
             
-        del sessions[user_id]
+        
+        elif session_type == 'addnumber':
+            try:
+                n = int(event.text.strip())
+                await set_addnumber_command(user_id, n)
+                await event.respond(f"✅ Add-number सेट हो गया: {n}")
+            except ValueError:
+                await event.respond("⚠️ कृपया सही संख्या भेजें।")
+
+        elif session_type == 'lessnumber':
+            try:
+                n = int(event.text.strip())
+                await set_lessnumber_command(user_id, n)
+                await event.respond(f"✅ Less-number सेट हो गया: {n}")
+            except ValueError:
+                await event.respond("⚠️ कृपया सही संख्या भेजें।")
+
+            del sessions[user_id]
     
 # Command to store channel IDs
 @gf.on(events.NewMessage(incoming=True, pattern='/lock'))
