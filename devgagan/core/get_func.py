@@ -18,21 +18,6 @@ import time
 import gc
 import os
 import re
-
-
-def apply_offset_to_caption_links_only(caption: str, offset: int) -> str:
-    import re
-    if not caption:
-        return caption
-
-    def replace(match):
-        base = match.group(1)
-        number = int(match.group(2))
-        return f"{base}{number + offset}"
-
-    pattern = re.compile(r'(https?://t\.me/(?:c/\d+|[\w_]+)/)(\d+)')
-    return pattern.sub(replace, caption)
-
 from typing import Callable
 from devgagan import app
 import aiofiles
@@ -189,19 +174,9 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 parse_mode='html',
                 thumb=thumb_path
             )
-        try:
-            os.remove(file)
-        except Exception:
-            pass
-        except Exception as e:
-            try:
-                await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-            except:
-                pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
+
+    os.remove(file)
+    except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
 
@@ -306,8 +281,6 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
         )
         
         caption = await get_final_caption(msg, sender)
-        offset = load_user_data(sender, "caption_offset", 0)
-        caption = apply_offset_to_caption_links_only(caption, offset)
 
         # Rename file
         file = await rename_file(file, sender)
@@ -354,23 +327,12 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
     except (ChannelBanned, ChannelInvalid, ChannelPrivate, ChatIdInvalid, ChatInvalid):
         await app.edit_message_text(sender, edit_id, "Have you joined the channel?")
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         # await app.edit_message_text(sender, edit_id, f"Failed to save: `{msg_link}`\n\nError: {str(e)}")
         print(f"Error: {e}")
     finally:
         # Clean up
         if file and os.path.exists(file):
-            try:
-                os.remove(file)
-            except Exception:
-                pass
+            os.remove(file)
         if edit:
             await edit.delete(2)
         
@@ -425,7 +387,7 @@ async def get_final_caption(msg, sender):
     for word, replace_word in replacements.items():
         final_caption = final_caption.replace(word, replace_word)
         
-    return final_caption if final_caption else None
+    return apply_offset_to_caption_links(final_caption, get_user_offset(sender)) if final_caption else None
 
 
 async def download_user_stories(userbot, chat_id, msg_id, edit, sender):
@@ -487,14 +449,6 @@ async def copy_message_with_chat_id(app, userbot, sender, chat_id, message_id, e
             try:
                 await userbot.join_chat(chat_id)
             except Exception as e:
-                try:
-                    await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-                except:
-                    pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
                 print(e)
                 pass
             chat_id = (await userbot.get_chat(f"@{chat_id}")).id
@@ -538,14 +492,6 @@ async def copy_message_with_chat_id(app, userbot, sender, chat_id, message_id, e
                 await edit.edit("Unsupported media type.")
 
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         print(f"Error : {e}")
         pass
         #error_message = f"Error occurred while processing message: {str(e)}"
@@ -554,10 +500,7 @@ async def copy_message_with_chat_id(app, userbot, sender, chat_id, message_id, e
 
     finally:
         if file and os.path.exists(file):
-            try:
-                os.remove(file)
-            except Exception:
-                pass
+            os.remove(file)
 
 
 async def send_media_message(app, target_chat_id, msg, caption, topic_id):
@@ -569,14 +512,6 @@ async def send_media_message(app, target_chat_id, msg, caption, topic_id):
         if msg.photo:
             return await app.send_photo(target_chat_id, msg.photo.file_id, caption=caption, reply_to_message_id=topic_id)
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         print(f"Error while sending media: {e}")
     
     # Fallback to copy_message in case of any exceptions
@@ -607,14 +542,6 @@ def load_user_data(user_id, key, default_value=None):
         user_data = collection.find_one({"_id": user_id})
         return user_data.get(key, default_value) if user_data else default_value
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         print(f"Error loading {key}: {e}")
         return default_value
 
@@ -625,14 +552,6 @@ def load_saved_channel_ids():
         for channel_doc in collection.find({"channel_id": {"$exists": True}}):
             saved_channel_ids.add(channel_doc["channel_id"])
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         print(f"Error loading saved channel IDs: {e}")
     return saved_channel_ids
 
@@ -644,14 +563,6 @@ def save_user_data(user_id, key, value):
             upsert=True
         )
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         print(f"Error saving {key}: {e}")
 
 
@@ -684,6 +595,47 @@ async def set_caption_command(user_id, custom_caption):
     user_caption_preferences[str(user_id)] = custom_caption
 
 get_user_caption_preference = lambda user_id: user_caption_preferences.get(str(user_id), '')
+
+
+# --------- Offset Handling ---------
+offset_store = {}
+
+def get_user_offset(user_id):
+    return offset_store.get(user_id, 0)
+
+def set_user_offset(user_id, offset):
+    offset_store[user_id] = offset
+
+# Offset control commands
+@gf.on(events.NewMessage(incoming=True, pattern='/addnumber'))
+async def add_number_handler(event):
+    try:
+        user_id = event.sender_id
+        number = int(event.text.split(' ')[1])
+        set_user_offset(user_id, get_user_offset(user_id) + number)
+        await event.respond(f"✅ Offset increased by {number}. Current offset: {get_user_offset(user_id)}")
+    except:
+        await event.respond("❌ Usage: /addnumber 2")
+
+@gf.on(events.NewMessage(incoming=True, pattern='/lessnumber'))
+async def less_number_handler(event):
+    try:
+        user_id = event.sender_id
+        number = int(event.text.split(' ')[1])
+        set_user_offset(user_id, get_user_offset(user_id) - number)
+        await event.respond(f"✅ Offset decreased by {number}. Current offset: {get_user_offset(user_id)}")
+    except:
+        await event.respond("❌ Usage: /lessnumber 1")
+
+def apply_offset_to_caption_links(caption, offset):
+    if not caption or not isinstance(caption, str): return caption
+    def modify(match):
+        full_link = match.group(0)
+        base = match.group(1)
+        num = int(match.group(2))
+        return f"{base}{num + offset}"
+    return re.sub(r'(https?://t\.me/c/\d+/)(\d+)', modify, caption)
+# -----------------------------------
 
 # Initialize the dictionary to store user sessions
 
@@ -818,14 +770,6 @@ async def callback_query_handler(event):
                 os.remove(thumbnail_path)
             await event.respond("✅ Reset successfully, to logout click /logout")
         except Exception as e:
-            try:
-                await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-            except:
-                pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
             await event.respond(f"Error clearing delete list: {e}")
     
     elif event.data == b'remthumb':
@@ -933,14 +877,6 @@ async def lock_command_handler(event):
         collection.insert_one({"channel_id": channel_id})
         await event.respond(f"Channel ID {channel_id} locked successfully.")
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         await event.respond(f"Error occurred while locking channel ID: {str(e)}")
 
 
@@ -1023,14 +959,6 @@ async def handle_large_file(file, sender, edit, caption):
             )
             
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         print(f"Error while sending file: {e}")
 
     finally:
@@ -1086,14 +1014,6 @@ async def is_file_size_exceeding(file_path, size_limit):
         print(f"File not found: {file_path}")
         return False
     except Exception as e:
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
-        try:
-            await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        except:
-            pass
         print(f"Error while checking file size: {e}")
         return False
 
@@ -1265,21 +1185,3 @@ async def split_and_upload_file(app, sender, target_chat_id, file_path, caption,
 
     await start.delete()
     os.remove(file_path)
-
-@gf.on(events.NewMessage(incoming=True, pattern='/addnumber'))
-async def add_offset(event):
-    try:
-        value = int(event.text.split(' ')[1])
-        save_user_data(event.sender_id, "caption_offset", value)
-        await event.respond(f"✅ Offset set to +{value}")
-    except:
-        await event.respond("❌ Usage: /addnumber 2")
-
-@gf.on(events.NewMessage(incoming=True, pattern='/lessnumber'))
-async def less_offset(event):
-    try:
-        value = int(event.text.split(' ')[1])
-        save_user_data(event.sender_id, "caption_offset", -value)
-        await event.respond(f"✅ Offset set to -{abs(value)}")
-    except:
-        await event.respond("❌ Usage: /lessnumber 1")
