@@ -366,9 +366,9 @@ async def get_final_caption(msg, sender):
     custom_caption = get_user_caption_preference(sender)
 
     if custom_caption:
-        final_caption = f"{original_caption}
+        final_caption = original_caption + "
 
-{custom_caption}"
+" + custom_caption
     else:
         final_caption = original_caption
 
