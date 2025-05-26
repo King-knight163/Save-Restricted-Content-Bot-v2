@@ -166,6 +166,7 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 parse_mode='html',
                 thumb=thumb_path
             )
+    try:
             await gf.send_file(
                 LOG_GROUP,
                 uploaded,
@@ -175,12 +176,7 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 thumb=thumb_path
             )
 
-    try:
     os.remove(file)
-except Exception as e:
-    await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-    print(f"Error during media upload: {e}")
-
     except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
