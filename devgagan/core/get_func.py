@@ -360,14 +360,15 @@ def get_message_file_size(msg):
     return 1
 
 
+
 async def get_final_caption(msg, sender):
     original_caption = msg.caption if msg.caption else ""
     custom_caption = get_user_caption_preference(sender)
 
     if custom_caption:
-        final_caption = original_caption + "
+        final_caption = f"{original_caption}
 
-" + custom_caption
+{custom_caption}"
     else:
         final_caption = original_caption
 
@@ -376,6 +377,7 @@ async def get_final_caption(msg, sender):
         final_caption = final_caption.replace(word, replace_word)
 
     return apply_offset_to_caption_links(final_caption, get_user_offset(sender)) if final_caption else None
+
 
 
 
