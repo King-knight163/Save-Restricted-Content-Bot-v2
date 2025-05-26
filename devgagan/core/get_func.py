@@ -64,7 +64,7 @@ async def fetch_upload_method(user_id):
 
 
 async def def format_caption_to_html(caption: str, sender: int) -> str:
-    if caption:
+async def format_caption_to_html(caption: str, sender: int) -> str:
         import re
         offset = load_user_data(sender, "addnumber", 0) - load_user_data(sender, "lessnumber", 0)
 
