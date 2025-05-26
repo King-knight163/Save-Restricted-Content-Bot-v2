@@ -190,10 +190,12 @@ async def batch_link(_, message):
 
     adjust = await app.ask(
         message.chat.id,
-        "Do you want to add or subtract numbers from the links?\n\n"
-        "Send /addnumber to increase the number in links\n"
-        "Send /lessnumber to decrease the number in links\n"
-        "Send /none to keep numbers as is"
+        "Do you want to increase or decrease the last number in Telegram links inside the caption?
+
+Use:
+➕ /addnumber <number> — to increase the number
+➖ /lessnumber <number> — to decrease the number
+🚫 /none — to keep links unchanged to keep numbers as is"
     )
     
     adjust_value = 0
