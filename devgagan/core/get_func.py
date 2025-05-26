@@ -396,21 +396,20 @@ def get_message_file_size(msg):
 
 
 async def get_final_caption(msg, sender):
-    # Handle caption based on the upload method
     if msg.caption:
         original_caption = msg.caption.markdown
     else:
         original_caption = ""
 
-    # ✅ Apply offset only to Telegram post links in caption
+    # ✅ Apply offset only to Telegram post links inside caption
     offset = load_user_data(sender, "addnumber", 0) - load_user_data(sender, "lessnumber", 0)
 
-    def update_link(match):
+    def adjust_link(match):
         base = match.group(1)
         number = int(match.group(2))
         return f"{base}{number + offset}"
 
-    updated_caption = re.sub(r"(https://t\.me/c/\d+/)(\d+)", update_link, original_caption)
+    updated_caption = re.sub(r"(https://t\.me/c/\d+/)(\d+)", adjust_link, original_caption)
 
     custom_caption = get_user_caption_preference(sender)
     final_caption = f"{updated_caption}\n\n{custom_caption}" if custom_caption else updated_caption
@@ -420,7 +419,6 @@ async def get_final_caption(msg, sender):
         final_caption = final_caption.replace(word, replace_word)
 
     return final_caption if final_caption else None
-
 
 
 async def download_user_stories(userbot, chat_id, msg_id, edit, sender):
