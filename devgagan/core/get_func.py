@@ -79,19 +79,7 @@ async def format_caption_to_html(caption: str) -> str:
 
 async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
     try:
-        upload_method = await fetch_upload_method(sender)  # Fetch the upload method (Pyrogram or Telethon)
-        metadata = video_metadata(file)
-        width, height, duration = metadata['width'], metadata['height'], metadata['duration']
-        try:
-            thumb_path = await screenshot(file, duration, sender)
-        except Exception:
-            thumb_path = None
-
-        video_formats = {'mp4', 'mkv', 'avi', 'mov'}
-        document_formats = {'pdf', 'docx', 'txt', 'epub'}
-        image_formats = {'jpg', 'png', 'jpeg'}
-
-        # Pyrogram upload
+        # Upload logic inside here
         if upload_method == "Pyrogram":
             if file.split('.')[-1].lower() in video_formats:
                 dm = await app.send_video(
@@ -108,7 +96,7 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                     progress_args=("╭─────────────────────╮\n│      **__Pyro Uploader__**\n├─────────────────────", edit, time.time())
                 )
                 await dm.copy(LOG_GROUP)
-                
+
             elif file.split('.')[-1].lower() in image_formats:
                 dm = await app.send_photo(
                     chat_id=target_chat_id,
@@ -134,7 +122,6 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 await asyncio.sleep(2)
                 await dm.copy(LOG_GROUP)
 
-        # Telethon upload
         elif upload_method == "Telethon":
             await edit.delete()
             progress_message = await gf.send_message(sender, "**__Uploading...__**")
@@ -147,7 +134,6 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 user_id=sender
             )
             await progress_message.delete()
-
             attributes = [
                 DocumentAttributeVideo(
                     duration=duration,
@@ -174,7 +160,6 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 parse_mode='html',
                 thumb=thumb_path
             )
-
     except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
@@ -183,15 +168,6 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
             os.remove(file)
         if thumb_path and os.path.exists(thumb_path):
             if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
-    except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-
-    finally:
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":  # Check if the filename is not {sender}.jpg
                 os.remove(thumb_path)
         gc.collect()
 
@@ -297,32 +273,14 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
             result = await app.send_audio(target_chat_id, file, caption=caption, reply_to_message_id=topic_id)
             await result.copy(LOG_GROUP)
             await edit.delete(2)
-            except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if os.path.exists(file):
             os.remove(file)
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
             return
         
         if msg.voice:
             result = await app.send_voice(target_chat_id, file, reply_to_message_id=topic_id)
             await result.copy(LOG_GROUP)
             await edit.delete(2)
-            except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if os.path.exists(file):
             os.remove(file)
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
             return
 
 
@@ -330,32 +288,14 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
             result = await app.send_video_note(target_chat_id, file, reply_to_message_id=topic_id)
             await result.copy(LOG_GROUP)
             await edit.delete(2)
-            except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if os.path.exists(file):
             os.remove(file)
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
             return
 
         if msg.photo:
             result = await app.send_photo(target_chat_id, file, caption=caption, reply_to_message_id=topic_id)
             await result.copy(LOG_GROUP)
             await edit.delete(2)
-            except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if os.path.exists(file):
             os.remove(file)
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
             return
 
         # Upload media
@@ -377,16 +317,7 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
     finally:
         # Clean up
         if file and os.path.exists(file):
-            except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if os.path.exists(file):
             os.remove(file)
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
         if edit:
             await edit.delete(2)
         
@@ -554,16 +485,7 @@ async def copy_message_with_chat_id(app, userbot, sender, chat_id, message_id, e
 
     finally:
         if file and os.path.exists(file):
-            except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if os.path.exists(file):
             os.remove(file)
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
 
 
 async def send_media_message(app, target_chat_id, msg, caption, topic_id):
@@ -946,16 +868,7 @@ async def lock_command_handler(event):
 async def handle_large_file(file, sender, edit, caption):
     if pro is None:
         await edit.edit('**__ ❌ 4GB trigger not found__**')
-        except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if os.path.exists(file):
-            os.remove(file)
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
+        os.remove(file)
         gc.collect()
         return
     
@@ -1035,16 +948,7 @@ async def handle_large_file(file, sender, edit, caption):
 
     finally:
         await edit.delete()
-        except Exception as e:
-        await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
-        print(f"Error during media upload: {e}")
-    finally:
-        if os.path.exists(file):
-            os.remove(file)
-        if thumb_path and os.path.exists(thumb_path):
-            if os.path.basename(thumb_path) != f"{sender}.jpg":
-                os.remove(thumb_path)
-        gc.collect()
+        os.remove(file)
         gc.collect()
         return
 
