@@ -52,7 +52,7 @@ collection = db[COLLECTION_NAME]
 
 if STRING:
     from devgagan import pro
-    print("App imported from devgagan.")
+    print("App imported from PLAY-Z.")
 else:
     pro = None
     print("STRING is not available. 'app' is set to None.")
@@ -194,7 +194,7 @@ async def get_msg(userbot, sender, edit_id, msg_link, i, message):
             if chat in saved_channel_ids:
                 await app.edit_message_text(
                     message.chat.id, edit_id,
-                    "Sorry! This channel is protected by **__Team SPY__**."
+                    "Sorry! This channel is protected by **__PLAY-Z HACKING__**."
                 )
                 return
             
@@ -730,7 +730,7 @@ async def callback_query_handler(event):
 
     elif event.data == b'telethon':
         save_user_upload_method(user_id, "Telethon")
-        await event.edit("Upload method set to **SpyLib ⚡\n\nThanks for choosing this library as it will help me to analyze the error raise issues on github.** ✅")        
+        await event.edit("Upload method set to **PLAY-ZLib ⚡\n\nThanks for choosing this library as it will help me to analyze the error raise issues on github.** ✅")        
         
     elif event.data == b'reset':
         try:
@@ -933,7 +933,7 @@ async def handle_large_file(file, sender, edit, caption):
         if freecheck == 1:
             reply_markup = InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton("💎 Get Premium to Forward", url="https://t.me/kingofpatal")]
+                    [InlineKeyboardButton("💎 Get Premium to Forward", url="https://t.me/PLAYZ_HELP_BOT")]
                 ]
             )
             await app.copy_message(
@@ -1058,7 +1058,7 @@ def progress_callback(done, total, user_id):
     # Format the final output as needed
     final = (
         f"╭──────────────────╮\n"
-        f"│     **__SpyLib ⚡ Uploader__**       \n"
+        f"│     **__PLAY-zLib ⚡ Uploader__**       \n"
         f"├──────────\n"
         f"│ {progress_bar}\n\n"
         f"│ **__Progress:__** {percent:.2f}%\n"
@@ -1066,7 +1066,7 @@ def progress_callback(done, total, user_id):
         f"│ **__Speed:__** {speed_mbps:.2f} Mbps\n"
         f"│ **__ETA:__** {remaining_time_min:.2f} min\n"
         f"╰──────────────────╯\n\n"
-        f"**__Powered by Team SPY__**"
+        f"**__Powered by PLAY-z HACKING__**"
     )
     
     # Update tracking variables for the user
@@ -1121,7 +1121,7 @@ def dl_progress_callback(done, total, user_id):
     # Format the final output as needed
     final = (
         f"╭──────────────────╮\n"
-        f"│     **__SpyLib ⚡ Downloader__**       \n"
+        f"│     **__PLAY-zLib ⚡ Downloader__**       \n"
         f"├──────────\n"
         f"│ {progress_bar}\n\n"
         f"│ **__Progress:__** {percent:.2f}%\n"
@@ -1129,7 +1129,7 @@ def dl_progress_callback(done, total, user_id):
         f"│ **__Speed:__** {speed_mbps:.2f} Mbps\n"
         f"│ **__ETA:__** {remaining_time_min:.2f} min\n"
         f"╰──────────────────╯\n\n"
-        f"**__Powered by Team SPY__**"
+        f"**__Powered by PLAY-z HACKING__**"
     )
     
     # Update tracking variables for the user
