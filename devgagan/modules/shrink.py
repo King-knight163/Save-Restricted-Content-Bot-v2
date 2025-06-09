@@ -1,4 +1,4 @@
- 
+
 # ---------------------------------------------------
 # File Name: shrink.py
 # Description: A Pyrogram bot for downloading files from Telegram channels or groups 
@@ -69,13 +69,13 @@ async def token_handler(client, message):
     join = await subscribe(client, message)
     if join == 1:
         return
-    chat_id = "playz_hacking"
+    chat_id = "save_restricted_content_bots"
     msg = await app.get_messages(chat_id, 796)
     user_id = message.chat.id
     if len(message.command) <= 1:
-        image_url = "https://i.ibb.co/4nG72mng/x.jpg"
-        join_button = InlineKeyboardButton("Join Channel", url="https://t.me/PLAYZ_HACKING")
-        premium = InlineKeyboardButton("Get Premium", url="https://t.me/playz_help_bot")   
+        image_url = "https://i.postimg.cc/v8q8kGyz/startimg-1.jpg"
+        join_button = InlineKeyboardButton("Join Channel", url="https://t.me/team_spy_pro")
+        premium = InlineKeyboardButton("Get Premium", url="https://t.me/kingofpatal")   
         keyboard = InlineKeyboardMarkup([
             [join_button],   
             [premium]    
@@ -84,7 +84,7 @@ async def token_handler(client, message):
         await message.reply_photo(
             msg.photo.file_id,
             caption=(
-                "Hi 👋 Welcome,To [PLAY-z RESTRICTED SAVING CONTENT BOT V.2](https://telegram.me/PLAYz RESTRCTED SAVING RoBot). I am Created by [PLAY-Z HACKING](https://t.me/PLAYZ_HACKING)\n\n"
+                "Hi 👋 Welcome, Wanna intro...?\n\n"
                 "✳️ I can save posts from channels or groups where forwarding is off. I can download videos/audio from YT, INSTA, ... social platforms\n"
                 "✳️ Simply send the post link of a public channel. For private channels, do /login. Send /help to know more."
             ),
